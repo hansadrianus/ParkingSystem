@@ -22,14 +22,18 @@ namespace ParkingSystem.Commands
         public int LeaveVehicle(IList<IParkedVehicle> parkingLots)
         {
             Console.Write("Input slot to leave: ");
-            int input = int.Parse(Console.ReadLine());
-            IParkedVehicle vehicle = parkingLots.FirstOrDefault(q => q.Slot == input);
-            if (vehicle == null)
-                return input;
+            if (int.TryParse(Console.ReadLine(), out int slot))
+            {
+                IParkedVehicle vehicle = parkingLots.FirstOrDefault(q => q.Slot == slot);
+                if (vehicle == null)
+                    return slot;
 
-            _parkedVehicles.Remove(vehicle);
+                _parkedVehicles.Remove(vehicle);
 
-            return vehicle.Slot;
+                return vehicle.Slot;
+            }
+            else
+                return LeaveVehicle(parkingLots);
         }
 
         public int ParkVehicle(IList<IParkedVehicle> parkingLots)
