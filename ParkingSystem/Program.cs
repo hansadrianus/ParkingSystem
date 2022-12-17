@@ -2,6 +2,8 @@
 using ParkingSystem.Commands;
 using ParkingSystem.Domains;
 using ParkingSystem.Domains.Interfaces;
+using ParkingSystem.Enums;
+using ParkingSystem.Extensions;
 using System.Data;
 
 namespace ParkingSystem
@@ -25,11 +27,11 @@ namespace ParkingSystem
                     continue;
                 }
                 ParkingLotCommand parkCommand = new ParkingLotCommand(ParkingLots);
+                Console.WriteLine();
 
-                switch (menuNum)
+                switch ((MenuEnumeration)menuNum)
                 {
-                    case 1:
-                        Console.WriteLine();
+                    case MenuEnumeration.InputSlot:
                         if (ParkSlot > 0)
                             continue;
 
@@ -37,47 +39,35 @@ namespace ParkingSystem
                         ParkingLots = new List<IParkedVehicle>(ParkSlot);
                         Console.WriteLine($"Created a parking lot with {ParkSlot} slots");
                         continue;
-                    case 2:
-                        Console.WriteLine();
+                    case MenuEnumeration.ParkVehicle:
                         if (ParkingLots.Count != ParkSlot)
-                        {
-                            int allocatedSlot = parkCommand.ParkVehicle(ParkingLots);
-                            Console.WriteLine($"Allocated slot number: {allocatedSlot}");
-                        }
+                            Console.WriteLine($"Allocated slot number: {parkCommand.ParkVehicle(ParkingLots)}");
                         else
                             Console.WriteLine("Sorry, parking lot is full");
                         continue;
-                    case 3:
-                        Console.WriteLine();
+                    case MenuEnumeration.LeaveVehicle:
                         if (ParkingLots.Count != 0)
-                        {
-                            int slotToRemove = parkCommand.LeaveVehicle(ParkingLots);
-                            Console.WriteLine($"Slot number {slotToRemove} is free");
-                        }
+                            Console.WriteLine($"Slot number {parkCommand.LeaveVehicle(ParkingLots)} is free");
                         else
                             Console.WriteLine("There is no vehicle parking");
                         continue;
-                    case 4:
-                        Console.WriteLine();
+                    case MenuEnumeration.GetParkedVehicleByType:
                         Console.Write("Type: ");
                         IList<IParkedVehicle> vehiclesWithType = parkCommand.RetrieveParkedVehicleByType(Console.ReadLine());
                         Console.WriteLine(vehiclesWithType.Count);
                         continue;
-                    case 5:
-                        Console.WriteLine();
+                    case MenuEnumeration.GetParkedVehicleByOddEvenPlate:
                         Console.Write("Odd or Even: ");
                         IList<IParkedVehicle> oddEvenVehicles = parkCommand.RetrieveParkedVehicleByOddEvenPlate(Console.ReadLine());
                         Console.WriteLine(string.Join(", ", oddEvenVehicles.Select(q => q.VehicleNo)));
                         continue;
-                    case 6:
-                        Console.WriteLine();
+                    case MenuEnumeration.GetParkedVehicleByColor:
                         Console.Write("Color: ");
                         IList<IParkedVehicle> colorVehicles = parkCommand.RetrieveParkedVehicleByColor(Console.ReadLine());
                         Console.WriteLine(string.Join(", ", colorVehicles.Select(q => q.Slot)));
                         Console.WriteLine(colorVehicles.Count);
                         continue;
-                    case 7:
-                        Console.WriteLine();
+                    case MenuEnumeration.GetParkedVehicleByPlateNumber:
                         Console.Write("Plate number: ");
                         IList<IParkedVehicle> oddEvenVehicle = parkCommand.RetrieveParkedVehicleByPlateNumber(Console.ReadLine());
                         if (oddEvenVehicle.Count > 0)
@@ -85,13 +75,11 @@ namespace ParkingSystem
                         else
                             Console.WriteLine("Not found");
                         continue;
-                    case 8:
-                        Console.WriteLine();
+                    case MenuEnumeration.Status:
                         ConsoleTable table = new ExportReportCommand(ParkingLots).PopulateDataToConsoleTable();
                         Console.WriteLine(table);
                         continue;
                     default:
-                        Console.Clear();
                         Console.WriteLine("Application destroyed");
                         break;
                 }
@@ -102,14 +90,11 @@ namespace ParkingSystem
         #region Private Methods
         private static int SelectMenu()
         {
-            Console.WriteLine("1. Input Slot");
-            Console.WriteLine("2. Park Vehicle");
-            Console.WriteLine("3. Leave Vehicle");
-            Console.WriteLine("4. Get Parked Vehicle By Types");
-            Console.WriteLine("5. Get Parked Vehicle By Odd/Even Plate");
-            Console.WriteLine("6. Get Parked Vehicle By Color");
-            Console.WriteLine("7. Get Parked Vehicle By Plate Number");
-            Console.WriteLine("8. Status");
+            foreach (MenuEnumeration item in Enum.GetValues(typeof(MenuEnumeration)))
+            {
+                Console.WriteLine(item.GetDescription());
+            }
+
             Console.WriteLine("");
             Console.Write("Select menu: ");
             if (int.TryParse(Console.ReadLine(), out int num))
